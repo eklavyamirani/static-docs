@@ -1,0 +1,95 @@
+name: Generate Index
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-index:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate index.txt
+        run: |
+          # Initialize arrays to store data
+          declare -a files
+          declare -a modified_dates
+          declare -a created_dates
+
+          # Find all .txt files excluding index.txt and README.md
+          for file in *.txt; do
+            if [[ "$file" != "index.txt" && "$file" != "README.md" ]]; then
+              files+=("${file%.txt}")
+
+              # Get last modified date
+              modified=$(git log -1 --format="%ai" -- "$file" | cut -d' ' -f1)
+              modified_dates+=("$modified")
+
+              # Get created date (first commit)
+              created=$(git log --reverse --format="%ai" -- "$file" | head -1 | cut -d' ' -f1)
+              created_dates+=("$created")
+            fi
+          done
+
+          # Generate index.txt
+          {
+            echo "Recently Modified:"
+
+            # Create associative array for sorting (bash doesn't have easy associative arrays, so we use a different approach)
+            # Create temp file with format: modified_date|filename
+            temp_modified=$(mktemp)
+            for i in "${!files[@]}"; do
+              echo "${modified_dates[$i]}|${files[$i]}" >> "$temp_modified"
+            done
+
+            # Sort by date descending and print
+            sort -r "$temp_modified" | while read line; do
+              filename=$(echo "$line" | cut -d'|' -f2)
+              date=$(echo "$line" | cut -d'|' -f1)
+              echo "  /$filename    ($date)"
+            done
+
+            rm "$temp_modified"
+
+            echo ""
+            echo "All Topics (by created):"
+
+            # Create temp file with format: created_date|filename
+            temp_created=$(mktemp)
+            for i in "${!files[@]}"; do
+              echo "${created_dates[$i]}|${files[$i]}" >> "$temp_created"
+            done
+
+            # Sort by date ascending and print
+            sort "$temp_created" | while read line; do
+              filename=$(echo "$line" | cut -d'|' -f2)
+              date=$(echo "$line" | cut -d'|' -f1)
+              echo "  /$filename    ($date)"
+            done
+
+            rm "$temp_created"
+          } > index.txt
+
+      - name: Check if index.txt changed
+        id: check_changes
+        run: |
+          if git diff --quiet index.txt; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push if changed
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.txt
+          git commit -m "chore: update index.txt"
+          git push

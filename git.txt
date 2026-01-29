@@ -1,0 +1,28 @@
+# git
+
+## undo last commit
+git reset --soft HEAD~1
+
+## interactive rebase last 5
+git rebase -i HEAD~5
+
+## force push safely
+git push --force-with-lease
+
+## create and switch to new branch
+git checkout -b <branch-name>
+
+## list all branches
+git branch -a
+
+## delete local branch
+git branch -d <branch-name>
+
+## squash last 3 commits
+git rebase -i HEAD~3
+
+## stash changes
+git stash
+
+## apply stashed changes
+git stash pop
