@@ -1,0 +1,37 @@
+# help
+
+## What is this?
+CLI Cheatsheet System - A static-hosted repository of curl-friendly command references
+
+## View a cheatsheet
+curl https://raw.githubusercontent.com/USER/REPO/main/<topic>.txt
+
+## View the index
+curl https://raw.githubusercontent.com/USER/REPO/main/index.txt
+
+## Add a new cheatsheet
+1. Create a new file: <topic>.txt
+2. Use this format:
+   # topic-name
+   ## command description
+   actual command here
+
+   ## another description
+   another command here
+3. Push to main branch
+4. Index updates automatically
+
+## Index sections
+Recently Modified - sorted by last modified date (newest first)
+All Topics - sorted by creation date (oldest first)
+
+## Custom domain
+After GitHub Pages setup with custom domain:
+curl https://c.yourdomain.com/<topic>.txt
+curl https://c.yourdomain.com/index.txt
+
+## File format rules
+- Start with: # topic-name (single #)
+- Use ##  for command descriptions
+- Follow with the actual command
+- Blank lines between command blocks
