@@ -1,0 +1,9 @@
+docker run --rm -it -v "$(pwd):/root" alpine:latest sh
+apk add gnupg
+cd /root
+gpg --import signing.key
+
+# the warning below means that the trust to verify signature actually belongs to the person who signed it doesn't exist on this machine.
+# WARNING: This key is not certified with a trusted signature!
+# How to verify the fingerprint
+# To be 100% sure, you should manually compare the fingerprint shown in your terminal against a trusted source (like the developer's official website, their Twitter bio, or a secure Key Server).
